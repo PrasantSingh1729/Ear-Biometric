@@ -78,13 +78,12 @@ def middlePoint(points):
     y3 = int((y1+y2)/2)
     return [x3,y3]
 
-def getLmin2(img, umax,midPoint,outerEdge,sign):
+def getLMax2(img, umax,midPoint,outerEdge,sign):
     x1 , y1 = umax
     x2 , y2 = midPoint
     m = (y2-y1)/(x2-x1)
     lmin2 = findIntersection(midPoint,m,outerEdge,1 if sign==-1 else -1)
     return lmin2
-
 
 def extractFeature(ref,normalpoints,precision=2):
     fv = list()
@@ -98,7 +97,7 @@ def extractFeature(ref,normalpoints,precision=2):
 # sign = 1 if left ear 
 # sign = -1 if right ear
 sign = 1
-path = 'canny/img/001_tt2.jpg'
+path = 'canny/img/065_.jpg'
 img = cv2.imread(path,0)
 img2 = cv2.imread(path)
 
@@ -108,26 +107,19 @@ kernel = np.ones((2, 2), np.uint8)
 img = cv2.dilate(img, kernel, iterations=1)
 img2 = cv2.dilate(img2, kernel, iterations=1)
 
-
-
 lines = find_lines(img,sign)
-
-
 
 outerEdge = sorted(lines,key=len,reverse=True)[0]
 
-
-
-umax, lmin = furthestPoint(outerEdge)
-
+umax, lmax = furthestPoint(outerEdge)
 
 cv2.circle(img2, umax, 2, (0,0,255), 2)
-cv2.circle(img2, lmin, 2, (0,0,255), 2)
-cv2.line(img2,umax,lmin,(0,0,255), 1)
+cv2.circle(img2, lmax, 2, (0,0,255), 2)
+cv2.line(img2,umax,lmax,(0,0,255), 1)
 
 
 
-points = getPoints([umax, lmin],19,sign)
+points = getPoints([umax, lmax],19,sign)
 for x in points:
     cv2.circle(img2, x, 2, (0,255,0), 2)
 
@@ -154,12 +146,12 @@ cv2.line(img2,midLine[0],midLine[1],(255,0,128), 1)
 
 
 
-lmin2 = getLmin2(img2, umax,midPoint,outerEdge,sign)
-cv2.line(img2,umax,lmin2,(0,0,255), 1)
-cv2.circle(img2, lmin2, 2, (0,0,255), 2)
+lmax2 = getLMax2(img2, umax,midPoint,outerEdge,sign)
+cv2.line(img2,umax,lmax2,(0,0,255), 1)
+cv2.circle(img2, lmax2, 2, (0,0,255), 2)
 
 
-points2 = getPoints([umax, lmin2],9,sign)
+points2 = getPoints([umax, lmax2],9,sign)
 for x in points2:
     cv2.circle(img2, x, 2, (0,255,0), 2)
 
