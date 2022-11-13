@@ -34,6 +34,6 @@ while True:
         cv2.imshow("Right Ear", cv2.Canny(Lcrop,60,120))
         
 
-
-    cv2.imshow("Image",gray)
+    cv2.imshow("Image", gray)
+    # cv2.imshow("Image",cv2.Canny(gray,60,120))
     cv2.waitKey(1)
