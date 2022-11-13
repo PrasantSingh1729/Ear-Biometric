@@ -7,20 +7,30 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 def getSlope(point1, point2):
+    '''
+    point1 = [x1,y1] \n
+    point2 = [x2,y2] \n
+    This funtion will return slope of line joining these two points.
+    '''
     x1 , y1 = point1
     x2 , y2 = point2
-    # it may cause error
-    m = (y2-y1)/(x2-x1) 
-    m = (y2-y1)/((x2-x1) if not (x2-x1)==0 else 1)
+    m = (y2-y1)/((x2-x1) if (x2-x1)!=0 else 1)
     return m
 
 def isSafe(img,visited, i, j):
-    if(i<0 or i>=len(img) or j<0 or j>=len(img[0]) or visited[i][j]==1 or img[i][j]<100):
+    '''
+    A supporting funtion for BFS for backtracking.
+    '''
+    if(i<0 or i>=len(visited) or j<0 or j>=len(visited[0]) or visited[i][j]==1 or img[i][j]<100):
         return False
     else:
         return True
 
 def bfs(img,visited,i,j):
+    '''
+    Find all the connected pixles to pixle(i,j) having white color using BFS(Breadth First Search).\n
+    It will return a list of pixles included in line and pixle will be in the format[x,y]. 
+    '''
     line_pixels = []
     queue = []
     visited[i][j] = 1
@@ -44,25 +54,24 @@ def bfs(img,visited,i,j):
             queue.append([I-1,J])
     return line_pixels
 
-def dfs(img,visited,i,j,sign):
-    if(i<0 or j<0 or i>=len(visited) or j>=len(visited[0]) or visited[i][j]==1 or img[i][j]<100):
-        return []
-    visited[i][j] = 1
-
-    return [[j,i]] + dfs(img, visited, i,j+(sign),sign) + dfs(img, visited, i,j-(sign),sign) + dfs(img, visited, i+(sign),j,sign) + dfs(img, visited, i-(sign),j,sign)
-
 def find_lines(img):
-    # print(sign)
+    '''
+    Find all the lines of white color in the image using BFS function.\n
+    It Will return a list of lines and lines will be the list of pixle and pixle will be in format[x,y].
+    '''
     visited = np.zeros((img.shape[0],img.shape[1]), dtype=bool)
     lines = list()
     for i in range(len(img)):
         for j in range(len(img[0])):
             if(img[i][j]>100 and visited[i][j]==0):
-                # print(i,j)
                 lines.append(bfs(img, visited,i,j))
     return lines
 
 def furthestPoint(points):
+    '''
+    It will find out the futhest two point on a given line.\n
+    It will return tuple of two pixle (pixle1,pixle2). Pixle will be in the format[x,y].
+    '''
     maxx = 0
     pair = tuple()
     for i in range(len(points)):
@@ -74,6 +83,9 @@ def furthestPoint(points):
     return pair
 
 def getsign(point1, point2):
+    '''
+    This funtion will tell in which direction we should proceed(+ or -) to go from point1 to point2.\n
+    '''
     m = getSlope(point1,point2)
     prev = math.dist(point1,point2)
     x1, y1 = point1
@@ -87,12 +99,17 @@ def getsign(point1, point2):
         return -1
 
 def getPoints(points, n, sign=1):
+    '''
+    It will generate n number of points between points[0] and points[1]. \n
+    All the points will be equally spaced and evenly spread. \n
+    This function will return list of n pixles. Pixle format[x,y].
+    '''
     if n%2==0:
         raise Exception("Odd value for n is required")
     ans = list()
     d = math.dist(points[0],points[1])/(n+1)
     x1, y1 = points[1]
-    x2, y2 = points[0]
+    # use getsign() function to decide wheather to go in positive or in negative direction
     sign = int(getsign(points[1],points[0]))
     m = getSlope(points[0],points[1])
     c = y1 - m*x1
@@ -105,6 +122,10 @@ def getPoints(points, n, sign=1):
     return ans
     
 def findIntersection(point1, m, outerEdge, sign):
+    '''
+    This function will find the intersection of line(passing from point1 with slope m) and outeredge.\n
+    Sign will be provided by the user, which will determine the direction of searching for the function.
+    '''
     x1 , y1 = point1
     for d in range(4,300):
         x2 = int(((1/math.sqrt(1+m**2))*sign*d + x1))
@@ -114,9 +135,13 @@ def findIntersection(point1, m, outerEdge, sign):
     return []
 
 def createNormals(outerEdge, points):
+    '''
+    This function will return pair of points [points[i],point_of_intersection]. Point format[x,y].
+    '''
     m = getSlope(points[1],points[2])
     if not m==0:
         m = -1/m
+    # first we will find intersections in positive direction
     sign = 1
     ans = list()
     for point1 in points:
@@ -125,6 +150,8 @@ def createNormals(outerEdge, points):
             ans.append([point1,point2])
     if(len(ans)==len(points)):
         return ans
+    # if above condition is not true
+    # we will fidn intersections in negative direction
     sign = -1
     ans = list()
     for point1 in points:
@@ -134,6 +161,9 @@ def createNormals(outerEdge, points):
     return ans
 
 def middlePoint(points):
+    '''
+    returns center point of the line joining points[0] and points[1]
+    '''
     x1 , y1 = points[0]
     x2 , y2 = points[1]
     x3 = int((x2+x1)/2)
@@ -141,6 +171,9 @@ def middlePoint(points):
     return [x3,y3]
 
 def getLMax2(umax,midPoint,outerEdge):
+    '''
+    return LMax2 
+    '''
     m = getSlope(umax,midPoint)
     print("Slope:", m)
     lmax2 = findIntersection(midPoint,m,outerEdge,-1)
@@ -149,7 +182,10 @@ def getLMax2(umax,midPoint,outerEdge):
     else:
         return findIntersection(midPoint,m,outerEdge,1)
 
-def extractFeature(img, ref,normalpoints,precision=2):
+def extractFeature(ref,normalpoints,precision=2):
+    '''
+    return feature vector in the form of 1D list.
+    '''
     fv = list()
     m1 = getSlope(ref, normalpoints[int(len(normalpoints)/2)][1])
     # cv2.circle(img, normalpoints[int(len(normalpoints)/2)][1],5,(255,255,0),6);
@@ -198,7 +234,7 @@ normalpoints = createNormals(outerEdge, points)
 refPoint = points[int(len(points)/2)]  
 
 # Finding feature vector 1
-fv1 = extractFeature(img2, refPoint,normalpoints)
+fv1 = extractFeature(refPoint,normalpoints)
 
 #------------Drawings for feature vector 1-------------------
 cv2.circle(img2, umax, 2, (0,0,255), 2)
@@ -233,7 +269,7 @@ normalpoints2 = createNormals(outerEdge, points2)
 refPoint2 = points2[int(len(points2)/2)]
 
 # Finding the feature vector 2
-fv2 = extractFeature(img2, refPoint2,normalpoints2)
+fv2 = extractFeature(refPoint2,normalpoints2)
 
 
 #------------Drawings for feature vector 2-------------------
@@ -255,16 +291,3 @@ cv2.imshow('Original', img)
 cv2.imshow('Painted', img2)
 cv2.waitKey(0)
 exit()
-
-
-
-
-
-# x2 = int(((1/math.sqrt(1+m**2))*100 + x1))
-# y2 = int(((m/math.sqrt(1+m**2))*100 + y1))
-# cv2.line(img, (x1,y1),(x2,y2),(255),2)
-
-# Feature Vector 1: (angle between reference line and line joining reference point and normal intersection point on the outer edge) 
-# [-4.66, -2.54, -1.62, -1.17, -0.87, -0.65, -0.46, -0.31, -0.15, 0.0, 0.16, 0.33, 0.49, 0.67, 0.88, 1.13, 1.48, 2.06, 3.34]
-# Feature Vector 2: (angle between reference line and line joining reference point and normal intersection point on the outer edge) 
-# 9 -> [-3.97, -1.92, -1.08, -0.48, 0.0, 0.42, 0.88, 1.56, 3.15]
