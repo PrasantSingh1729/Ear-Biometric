@@ -20,21 +20,19 @@ def resizeImage(img,size):
 
 
 
-img_path = "img/195_.jpg"
-img = cv2.imread(img_path)
-# resizing the image while maintaining the proportionnality
-img = resizeImage(img,700)
-# applying gaussian blur to reduce noise
-img = cv2.GaussianBlur(img,(9,9),0) # odd size matrix is used
-# applying canny edge detection
-canny = cv2.Canny(img,60,120)
+if __name__=='__main__':
+    img_path = "img/195_.jpg"
+    img = cv2.imread(img_path)
+    # resizing the image while maintaining the proportionnality
+    img = resizeImage(img,700)
+    # applying gaussian blur to reduce noise
+    img = cv2.GaussianBlur(img,(9,9),0) # odd size matrix is used
+    # applying canny edge detection
+    canny = cv2.Canny(img,60,120)
 
-# saving the canny image
-# cv2.imwrite('canny/'+img_path, canny)
-
-
-cv2.imshow("Original", img)
-cv2.imshow("Gaussian Blur", img)
-cv2.imshow("canny", canny)
-
-cv2.waitKey(0)
+    # saving the canny image
+    # cv2.imwrite('canny/'+img_path, canny)
+    cv2.imshow("Original", img)
+    cv2.imshow("Gaussian Blur", img)
+    cv2.imshow("canny", canny)
+    cv2.waitKey(0)

@@ -270,6 +270,8 @@ def getFeatureVector(canny):
     # Finding the feature vector 2
     fv2 = extractFeature(refPoint2,normalpoints2)
 
+    # midline start and end point
+    midLine2 = normalpoints2[int(len(normalpoints2)/2)]
 
     #------------Drawings for feature vector 2-------------------
     cv2.line(canny,midLine[0],midLine[1],(255,0,128), 1)
@@ -281,12 +283,13 @@ def getFeatureVector(canny):
     for point in normalpoints2:
         cv2.line(canny,point[0],point[1],(255,255,0), 1)
     cv2.circle(canny, refPoint2, 2, (255,0,128), 2)
+    cv2.line(canny,midLine2[0],midLine2[1],(255,0,128), 1)
     #------------------------------------------------------------
     return (canny,fv1,fv2)
 
 
 if __name__=='__main__':
-    path = 'canny/img/001_.jpg'
+    path = 'canny/img/195_.jpg'
     canny = cv2.imread(path)  
     fvimg, fv1, fv2 = getFeatureVector(canny)
     print("Feature Vector 1: (angle between reference_Line_1 joining reference point and normal intersection point on the outer edge)")
