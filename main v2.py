@@ -1,4 +1,3 @@
-from weakref import ref
 import cv2
 import numpy as np
 import math
@@ -195,20 +194,24 @@ def extractFeature(ref,normalpoints,precision=2):
         fv.append(round(angle,precision))
     return fv
 
-def getFeatureVector(img2,draw=0):
+def getFeatureVector(canny):
+    '''
+    This funtion accept image of canny of ear in BGR format and provide feature vector. \n
+    return [image_with_drawing, featureVector1, featureVector2]
+    '''
     # importing canny image as 
     # img(in grayscale for processing) 
-    # and img2(in RGB for drawing colorfull lines on it)
-    img = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+    # and canny(in RGB for drawing colorfull lines on it)
+    grey = cv2.cvtColor(canny, cv2.COLOR_BGR2GRAY)
     # Dilate the image to avoid error beacause of thin disjoints
     kernel = np.ones((2, 2), np.uint8)
-    img = cv2.dilate(img, kernel, iterations=1)
-    img2 = cv2.dilate(img2, kernel, iterations=1)
+    grey = cv2.dilate(grey, kernel, iterations=1)
+    canny = cv2.dilate(canny, kernel, iterations=1)
 
 
     # Finding all connected line of white color in image
     # lines variable will have list of pixles(coordinates [x,y]) of all the lines present in the img
-    lines = find_lines(img)
+    lines = find_lines(grey)
 
     # Out of all the lines we need only the outer edge for further calculation
     # OuterEdge variable will consisit all the pixles of outer edge
@@ -233,15 +236,15 @@ def getFeatureVector(img2,draw=0):
     fv1 = extractFeature(refPoint,normalpoints)
 
     #------------Drawings for feature vector 1-------------------
-    cv2.circle(img2, umax, 2, (0,0,255), 2)
-    cv2.circle(img2, lmax, 2, (0,0,255), 2)
-    cv2.line(img2,umax,lmax,(0,0,255), 1)
+    cv2.circle(canny, umax, 2, (0,0,255), 2)
+    cv2.circle(canny, lmax, 2, (0,0,255), 2)
+    cv2.line(canny,umax,lmax,(0,0,255), 1)
     for x in points:
-        cv2.circle(img2, x, 2, (0,255,0), 2)
+        cv2.circle(canny, x, 2, (0,255,0), 2)
     for point in normalpoints:
-        cv2.line(img2,point[0],point[1],(255,0,0), 1)
+        cv2.line(canny,point[0],point[1],(255,0,0), 1)
 
-    cv2.circle(img2, refPoint, 2, (255,0,128), 2)
+    cv2.circle(canny, refPoint, 2, (255,0,128), 2)
     #------------------------------------------------------------
 
 
@@ -269,31 +272,39 @@ def getFeatureVector(img2,draw=0):
 
 
     #------------Drawings for feature vector 2-------------------
-    cv2.line(img2,midLine[0],midLine[1],(255,0,128), 1)
-    cv2.line(img2,umax,lmax2,(0,0,255), 1)
-    cv2.circle(img2, lmax2, 2, (0,255,255), 2)
+    cv2.line(canny,midLine[0],midLine[1],(255,0,128), 1)
+    cv2.line(canny,umax,lmax2,(0,0,255), 1)
+    cv2.circle(canny, lmax2, 2, (0,255,255), 2)
     for x in points2:
-        cv2.circle(img2, x, 2, (0,255,0), 2)
+        cv2.circle(canny, x, 2, (0,255,0), 2)
 
     for point in normalpoints2:
-        cv2.line(img2,point[0],point[1],(255,255,0), 1)
-    cv2.circle(img2, refPoint2, 2, (255,0,128), 2)
+        cv2.line(canny,point[0],point[1],(255,255,0), 1)
+    cv2.circle(canny, refPoint2, 2, (255,0,128), 2)
     #------------------------------------------------------------
-    # print("Feature Vector 1: (angle between reference_Line_1 joining reference point and normal intersection point on the outer edge)")
-    # print(len(fv1),"->",fv1)
-    # print("Feature Vector 2: (angle between reference_line_2 joining reference point and normal intersection point on the outer edge)")
-    # print(len(fv2),"->",fv2)
-    if draw:
-        cv2.imshow('Original', img)
-        cv2.imshow('Painted', img2)
-        cv2.waitKey(0)
-    return (fv1,fv2)
-
+    return (canny,fv1,fv2)
 
 
 if __name__=='__main__':
     path = 'canny/img/001_.jpg'
-    img = cv2.imread(path)  
-    fv1, fv2 = getFeatureVector(img,draw=0)
-    print(fv1)
-    print(fv2)
+    canny = cv2.imread(path)  
+    fvimg, fv1, fv2 = getFeatureVector(canny)
+    print("Feature Vector 1: (angle between reference_Line_1 joining reference point and normal intersection point on the outer edge)")
+    print(len(fv1),"->",fv1)
+    print("Feature Vector 2: (angle between reference_line_2 joining reference point and normal intersection point on the outer edge)")
+    print(len(fv2),"->",fv2)
+    
+    cv2.imshow('Canny', canny)
+    cv2.imshow('Canny with Feature vector Drawings', fvimg)
+    cv2.waitKey(0)
+
+
+
+# -----------------------------------------------------------------------
+
+# Output
+
+# Feature Vector 1: (angle between reference_Line_1 joining reference point and normal intersection point on the outer edge)
+# 19 -> [81.6, 72.2, 62.83, 51.49, 41.99, 32.73, 24.3, 16.32, 7.82, 0.0, 8.12, 16.04, 24.41, 31.54, 39.13, 46.73, 54.78, 62.85, 72.13]
+# Feature Vector 2: (angle between reference_line_2 joining reference point and normal intersection point on the outer edge)
+# 9 -> [73.8, 58.52, 41.9, 21.48, 0.0, 21.76, 41.1, 57.76, 73.08]
