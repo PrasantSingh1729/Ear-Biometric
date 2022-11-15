@@ -300,14 +300,3 @@ if __name__=='__main__':
     cv2.imshow('Canny', canny)
     cv2.imshow('Canny with Feature vector Drawings', fvimg)
     cv2.waitKey(0)
-
-
-
-# -----------------------------------------------------------------------
-
-# Output
-
-# Feature Vector 1: (angle between reference_Line_1 joining reference point and normal intersection point on the outer edge)
-# 19 -> [81.6, 72.2, 62.83, 51.49, 41.99, 32.73, 24.3, 16.32, 7.82, 0.0, 8.12, 16.04, 24.41, 31.54, 39.13, 46.73, 54.78, 62.85, 72.13]
-# Feature Vector 2: (angle between reference_line_2 joining reference point and normal intersection point on the outer edge)
-# 9 -> [73.8, 58.52, 41.9, 21.48, 0.0, 21.76, 41.1, 57.76, 73.08]

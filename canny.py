@@ -18,18 +18,21 @@ def resizeImage(img,size):
     img = cv2.resize(img,(w,h))
     return img
 
-def getCanny(img):    
+def getCanny(img,blur=9,tmin=60,tmax=120):
+    '''
+    Accept image in BGR format and returns gussian(BGR) and canny(Gray) 
+    '''    
     # applying gaussian blur to reduce noise
-    gaussian = cv2.GaussianBlur(img,(9,9),0) # odd size matrix is used
+    gaussian = cv2.GaussianBlur(img,(blur,blur),0) # odd size matrix is used
     # applying canny edge detection
-    canny = cv2.Canny(gaussian,60,120)
+    canny = cv2.Canny(gaussian,tmin,tmax)
     return [gaussian, canny]
 
 
 if __name__=='__main__':
-    img_path = "img/195_.jpg"
+    img_path = "img/065_.jpg"
     img = cv2.imread(img_path)
-    img = resizeImage(img,700)
+    img = resizeImage(img,300)
     gaussian, canny = getCanny(img)
     # saving the canny image
     # cv2.imwrite('canny/'+img_path, canny)

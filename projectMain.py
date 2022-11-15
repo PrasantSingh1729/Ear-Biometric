@@ -2,17 +2,17 @@ import cv2
 from Canny import *
 from earFeatureExtarction import *
 if __name__=='__main__':
+    # 195_ 020_ 014_ 033_ 035_t 038_ 065_
     img_path = "img/195_.jpg"
     img = cv2.imread(img_path)
     resizeimg = resizeImage(img,500)
-    gaussian, canny = getCanny(resizeimg)
+    gaussian, canny = getCanny(resizeimg,blur=9)
     
     canny = cv2.cvtColor(canny,cv2.COLOR_GRAY2BGR)
     
 
     fvimg, fv1, fv2 = getFeatureVector(canny)
 
-    
     print("Feature Vector 1: (angle between reference_Line_1 joining reference point and normal intersection point on the outer edge)")
     print(len(fv1),"->",fv1)
     print("Feature Vector 2: (angle between reference_line_2 joining reference point and normal intersection point on the outer edge)")
