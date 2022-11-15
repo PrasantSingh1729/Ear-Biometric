@@ -98,7 +98,7 @@ def getsign(point1, point2):
     else:
         return -1
 
-def getPoints(points, n, sign=1):
+def getPoints(points, n):
     '''
     It will generate n number of points between points[0] and points[1]. \n
     All the points will be equally spaced and evenly spread. \n
@@ -175,7 +175,6 @@ def getLMax2(umax,midPoint,outerEdge):
     return LMax2 
     '''
     m = getSlope(umax,midPoint)
-    print("Slope:", m)
     lmax2 = findIntersection(midPoint,m,outerEdge,-1)
     if(lmax2[1]>midPoint[1]):
         return lmax2
@@ -189,105 +188,112 @@ def extractFeature(ref,normalpoints,precision=2):
     fv = list()
     m1 = getSlope(ref, normalpoints[int(len(normalpoints)/2)][1])
     # cv2.circle(img, normalpoints[int(len(normalpoints)/2)][1],5,(255,255,0),6);
-    print("m1=",m1)
     for point in normalpoints:
         m2 = getSlope(ref, point[1])
-        fv.append(round((m1-m2)/(1+m1*m2),precision))
+        tan = abs((m1-m2)/(1+m1*m2))
+        angle = math.degrees(math.atan(tan))
+        fv.append(round(angle,precision))
     return fv
 
+def getFeatureVector(img2,draw=0):
+    # importing canny image as 
+    # img(in grayscale for processing) 
+    # and img2(in RGB for drawing colorfull lines on it)
+    img = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+    # Dilate the image to avoid error beacause of thin disjoints
+    kernel = np.ones((2, 2), np.uint8)
+    img = cv2.dilate(img, kernel, iterations=1)
+    img2 = cv2.dilate(img2, kernel, iterations=1)
 
 
-# importing canny image as 
-# img(in grayscale for processing) 
-# and img2(in RGB for drawing colorfull lines on it)
-path = 'canny/img/195_.jpg'
-img = cv2.imread(path,0) # second parameter is Zero indicate we want to import image in grayscale
-img2 = cv2.imread(path)  
+    # Finding all connected line of white color in image
+    # lines variable will have list of pixles(coordinates [x,y]) of all the lines present in the img
+    lines = find_lines(img)
 
-# Dilate the image to avoid error beacause of thin disjoints
-kernel = np.ones((2, 2), np.uint8)
-img = cv2.dilate(img, kernel, iterations=1)
-img2 = cv2.dilate(img2, kernel, iterations=1)
+    # Out of all the lines we need only the outer edge for further calculation
+    # OuterEdge variable will consisit all the pixles of outer edge
+    outerEdge = sorted(lines,key=len,reverse=True)[0]
 
+    # Find furthest point on outer edge
+    # umax - uppermost point
+    # lmax - lowermost point 
+    umax, lmax = furthestPoint(outerEdge)
 
-# Finding all connected line of white color in image
-# lines variable will have list of pixles(coordinates [x,y]) of all the lines present in the img
-lines = find_lines(img)
+    # Generating 19 points in between umax and lmax
+    points = getPoints([umax, lmax],19)
 
-# Out of all the lines we need only the outer edge for further calculation
-# OuterEdge variable will consisit all the pixles of outer edge
-outerEdge = sorted(lines,key=len,reverse=True)[0]
+    # Finding the intersection of normal drawn with outer edge
+    normalpoints = createNormals(outerEdge, points)
 
-# Find furthest point on outer edge
-# umax - uppermost point
-# lmax - lowermost point 
-umax, lmax = furthestPoint(outerEdge)
+    # Finding the reference point for feature vector 1
+    # reference point is middle point
+    refPoint = points[int(len(points)/2)]  
 
-# Generating 19 points in between umax and lmax
-points = getPoints([umax, lmax],19)
+    # Finding feature vector 1
+    fv1 = extractFeature(refPoint,normalpoints)
 
-# Finding the intersection of normal drawn with outer edge
-normalpoints = createNormals(outerEdge, points)
+    #------------Drawings for feature vector 1-------------------
+    cv2.circle(img2, umax, 2, (0,0,255), 2)
+    cv2.circle(img2, lmax, 2, (0,0,255), 2)
+    cv2.line(img2,umax,lmax,(0,0,255), 1)
+    for x in points:
+        cv2.circle(img2, x, 2, (0,255,0), 2)
+    for point in normalpoints:
+        cv2.line(img2,point[0],point[1],(255,0,0), 1)
 
-# Finding the reference point for feature vector 1
-# reference point is middle point
-refPoint = points[int(len(points)/2)]  
-
-# Finding feature vector 1
-fv1 = extractFeature(refPoint,normalpoints)
-
-#------------Drawings for feature vector 1-------------------
-cv2.circle(img2, umax, 2, (0,0,255), 2)
-cv2.circle(img2, lmax, 2, (0,0,255), 2)
-cv2.line(img2,umax,lmax,(0,0,255), 1)
-for x in points:
-    cv2.circle(img2, x, 2, (0,255,0), 2)
-for point in normalpoints:
-    cv2.line(img2,point[0],point[1],(255,0,0), 1)
-
-cv2.circle(img2, refPoint, 2, (255,0,128), 2)
-#------------------------------------------------------------
+    cv2.circle(img2, refPoint, 2, (255,0,128), 2)
+    #------------------------------------------------------------
 
 
-# midline start and end point
-midLine = normalpoints[int(len(normalpoints)/2)]
+    # midline start and end point
+    midLine = normalpoints[int(len(normalpoints)/2)]
 
-# finding middlePoint from start and end point of midline
-midPoint = middlePoint(midLine)
+    # finding middlePoint from start and end point of midline
+    midPoint = middlePoint(midLine)
 
-# finding lmax2 by extanding line from 
-# umax to midpoint and find where it intersect on outeredge
-lmax2 = getLMax2(umax,midPoint,outerEdge)
+    # finding lmax2 by extanding line from 
+    # umax to midpoint and find where it intersect on outeredge
+    lmax2 = getLMax2(umax,midPoint,outerEdge)
 
-# Finding 9 points in between umax and lmax2
-points2 = getPoints([umax, lmax2],9)
+    # Finding 9 points in between umax and lmax2
+    points2 = getPoints([umax, lmax2],9)
 
-# Finding normal intersection point
-normalpoints2 = createNormals(outerEdge, points2)
+    # Finding normal intersection point
+    normalpoints2 = createNormals(outerEdge, points2)
 
-# Finding reference point for feature vector 2
-refPoint2 = points2[int(len(points2)/2)]
+    # Finding reference point for feature vector 2
+    refPoint2 = points2[int(len(points2)/2)]
 
-# Finding the feature vector 2
-fv2 = extractFeature(refPoint2,normalpoints2)
+    # Finding the feature vector 2
+    fv2 = extractFeature(refPoint2,normalpoints2)
 
 
-#------------Drawings for feature vector 2-------------------
-cv2.line(img2,midLine[0],midLine[1],(255,0,128), 1)
-cv2.line(img2,umax,lmax2,(0,0,255), 1)
-cv2.circle(img2, lmax2, 2, (0,255,255), 2)
-for x in points2:
-    cv2.circle(img2, x, 2, (0,255,0), 2)
+    #------------Drawings for feature vector 2-------------------
+    cv2.line(img2,midLine[0],midLine[1],(255,0,128), 1)
+    cv2.line(img2,umax,lmax2,(0,0,255), 1)
+    cv2.circle(img2, lmax2, 2, (0,255,255), 2)
+    for x in points2:
+        cv2.circle(img2, x, 2, (0,255,0), 2)
 
-for point in normalpoints2:
-    cv2.line(img2,point[0],point[1],(255,255,0), 1)
-cv2.circle(img2, refPoint2, 2, (255,0,128), 2)
-#------------------------------------------------------------
+    for point in normalpoints2:
+        cv2.line(img2,point[0],point[1],(255,255,0), 1)
+    cv2.circle(img2, refPoint2, 2, (255,0,128), 2)
+    #------------------------------------------------------------
+    # print("Feature Vector 1: (angle between reference_Line_1 joining reference point and normal intersection point on the outer edge)")
+    # print(len(fv1),"->",fv1)
+    # print("Feature Vector 2: (angle between reference_line_2 joining reference point and normal intersection point on the outer edge)")
+    # print(len(fv2),"->",fv2)
+    if draw:
+        cv2.imshow('Original', img)
+        cv2.imshow('Painted', img2)
+        cv2.waitKey(0)
+    return (fv1,fv2)
 
-print(len(fv1),"->",fv1)
-print(len(fv2),"->",fv2)
 
-cv2.imshow('Original', img)
-cv2.imshow('Painted', img2)
-cv2.waitKey(0)
-exit()
+
+if __name__=='__main__':
+    path = 'canny/img/001_.jpg'
+    img = cv2.imread(path)  
+    fv1, fv2 = getFeatureVector(img,draw=0)
+    print(fv1)
+    print(fv2)
