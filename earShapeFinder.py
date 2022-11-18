@@ -68,11 +68,43 @@ def isNarrow(normalpoints, edgeSize):
 
 
 
-def findShape(canny):
-    '''
-    This funtion accept image of canny of ear in BGR format and provide feature vector. \n
-    return 
-    '''
+def findShape(img,outerEdge,umax,lmax,normalpoints,draw=1):
+    canny = img.copy()
+    refLine = normalpoints[int(len(normalpoints)/2)]
+    refPoint = refLine[0]
+
+    outerEdgeImg = getOuterEdgeImg(canny,outerEdge)
+    edgeSize = len(outerEdge)
+    round = isRound(canny, umax,refPoint,outerEdgeImg,edgeSize)
+    free = isFree(canny, lmax, refPoint, outerEdgeImg, edgeSize)
+    narrow = isNarrow(normalpoints, edgeSize) 
+    print(free,round,narrow)
+
+
+    # ---------------------Drawings------------------------------------------
+    cv2.circle(canny, umax, 2, (0,0,255), 2)
+    cv2.circle(canny, lmax, 2, (0,0,255), 2)
+    cv2.line(canny, umax,lmax,(0,0,255), 1)
+    
+    
+    if(draw==1):
+        cv2.imshow("Find Shape", canny)
+    
+    
+
+if __name__=="__main__":
+    # 195_ 020_ 014_ 033_ 035_t 038_ 065_
+    # round - 195_ 014_
+    # not round - 
+    # attached - 014_
+    # Free - 195_
+    img_path = "img/033_.jpg"
+    img = cv2.imread(img_path)
+    resizeimg = resizeImage(img,500)
+    gaussian, canny = getCanny(resizeimg,blur=9)
+    
+    canny = cv2.cvtColor(canny,cv2.COLOR_GRAY2BGR)
+    
     # importing canny image as 
     # img(in grayscale for processing) 
     # and canny(in RGB for drawing colorfull lines on it)
@@ -108,44 +140,7 @@ def findShape(canny):
     # reference point is middle point
     refPoint = points[int(len(points)/2)]
 
-
-    
-    
-    # extra part-----------------------------------------------------------------------------
-    outerEdgeImg = getOuterEdgeImg(canny,outerEdge)
-    edgeSize = len(outerEdge)
-    round = isRound(canny, umax,refPoint,outerEdgeImg,edgeSize)
-    free = isFree(canny, lmax, refPoint, outerEdgeImg, edgeSize)
-    narrow = isNarrow(normalpoints, edgeSize) 
-    print(free,round,narrow)
-
-
-    # ---------------------Drawings--------------------------------------------
-    cv2.circle(canny, umax, 2, (0,0,255), 2)
-    cv2.circle(canny, lmax, 2, (0,0,255), 2)
-    cv2.line(canny, umax,lmax,(0,0,255), 1)
-    
-    
-
-    cv2.imshow("Canny", canny)
-    
-    
-
-if __name__=="__main__":
-    # 195_ 020_ 014_ 033_ 035_t 038_ 065_
-    # round - 195_ 014_
-    # not round - 
-    # attached - 014_
-    # Free - 195_
-    img_path = "img/195_.jpg"
-    img = cv2.imread(img_path)
-    resizeimg = resizeImage(img,500)
-    gaussian, canny = getCanny(resizeimg,blur=9)
-    
-    canny = cv2.cvtColor(canny,cv2.COLOR_GRAY2BGR)
-    
-
-    findShape(canny)
+    findShape(canny,outerEdge,umax,lmax,normalpoints)
 
     cv2.imshow("original",resizeimg)
     cv2.waitKey(0)
