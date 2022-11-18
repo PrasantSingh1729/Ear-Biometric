@@ -2,6 +2,15 @@ from Canny import *
 from earFeatureExtarction import *
 import math
 
+def middlePoint(points):
+    '''
+    returns center point of the line joining points[0] and points[1]
+    '''
+    x1 , y1 = points[0]
+    x2 , y2 = points[1]
+    x3 = int((x2+x1)/2)
+    y3 = int((y1+y2)/2)
+    return [x3,y3]
 
 def getOuterEdgeImg(canny,outeredge):
     outerEdgeImg = np.zeros((canny.shape[0],canny.shape[1]), np.uint8)
@@ -25,10 +34,8 @@ def isFree(canny, lmax,refPoint, outerEdgeImg, edgeSize, draw=1):
         cv2.rectangle(canny,[0,int((refPoint[1]+lmax[1])/2)],lmax,(0,255,255),1)
 
     if(getOverlapPercentage(lobeMask,outerEdgeImg,edgeSize)>0.03):
-        print("Free Earlobes")
         return True
     else:
-        print("Attached Earlobes")
         return False
     
 def isRound(canny, umax,refPoint,outerEdgeImg,edgeSize, draw=1):
@@ -41,32 +48,18 @@ def isRound(canny, umax,refPoint,outerEdgeImg,edgeSize, draw=1):
         cv2.circle(canny,circleCenter,radius,(255,0,255),1)
     
     if(getOverlapPercentage(circleMask,outerEdgeImg,edgeSize)>0.1):
-        print("It's a round ear.")
         return True
     else:
-        print("It's not a round ear.")
         return False
 
 def isNarrow(normalpoints, edgeSize):
-    # maxx = 0
-    # for pair in normalpoints:
-    #     maxx = max(maxx, math.dist(pair[0],pair[1]))
-    # ans = maxx/edgeSize
     refLine = normalpoints[int(len(normalpoints)/2)]
     dist = math.dist(refLine[0],refLine[1])
     normalizeDist = dist/edgeSize
-    
     if(normalizeDist<0.06):
-        print("It's a Narrow Ear")
         return True
     else:
-        print("It's not a Narrow Ear")
         return False
-
-
-
-
-
 
 def findShape(img,outerEdge,umax,lmax,normalpoints,draw=1):
     canny = img.copy()
@@ -78,18 +71,18 @@ def findShape(img,outerEdge,umax,lmax,normalpoints,draw=1):
     round = isRound(canny, umax,refPoint,outerEdgeImg,edgeSize)
     free = isFree(canny, lmax, refPoint, outerEdgeImg, edgeSize)
     narrow = isNarrow(normalpoints, edgeSize) 
-    print(free,round,narrow)
-
-
+    
     # ---------------------Drawings------------------------------------------
     cv2.circle(canny, umax, 2, (0,0,255), 2)
     cv2.circle(canny, lmax, 2, (0,0,255), 2)
     cv2.line(canny, umax,lmax,(0,0,255), 1)
     
-    
     if(draw==1):
         cv2.imshow("Find Shape", canny)
     
+    # print(free,round,narrow)
+
+    return 4*free + 2*round + 1*narrow
     
 
 if __name__=="__main__":
@@ -98,7 +91,7 @@ if __name__=="__main__":
     # not round - 
     # attached - 014_
     # Free - 195_
-    img_path = "img/033_.jpg"
+    img_path = "img/195_.jpg"
     img = cv2.imread(img_path)
     resizeimg = resizeImage(img,500)
     gaussian, canny = getCanny(resizeimg,blur=9)
@@ -140,14 +133,15 @@ if __name__=="__main__":
     # reference point is middle point
     refPoint = points[int(len(points)/2)]
 
-    findShape(canny,outerEdge,umax,lmax,normalpoints)
+    shape = findShape(canny,outerEdge,umax,lmax,normalpoints)
+
+    print("Category:",shape+1)
+    print("Free Lobe:",bool(4&shape))
+    print("Round:",bool(2&shape))
+    print("Narrow:",bool(1&shape))
 
     cv2.imshow("original",resizeimg)
     cv2.waitKey(0)
     
     
-    
-
-
-
-# img = np.zeros((canny.shape[0],canny.shape[1]), np.uint8)
+    # img = np.zeros((canny.shape[0],canny.shape[1]), np.uint8)

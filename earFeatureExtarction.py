@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import math
 import warnings
+from earShapeFinder import *
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
 
@@ -235,6 +236,9 @@ def getFeatureVector(canny):
     # Finding feature vector 1
     fv1 = extractFeature(refPoint,normalpoints)
 
+    # shape of the ear
+    shape = findShape(canny,outerEdge,umax,lmax,normalpoints)
+
     #------------Drawings for feature vector 1-------------------
     cv2.circle(canny, umax, 2, (0,0,255), 2)
     cv2.circle(canny, lmax, 2, (0,0,255), 2)
@@ -273,6 +277,8 @@ def getFeatureVector(canny):
     # midline start and end point
     midLine2 = normalpoints2[int(len(normalpoints2)/2)]
 
+    
+
     #------------Drawings for feature vector 2-------------------
     cv2.line(canny,midLine[0],midLine[1],(255,0,128), 1)
     cv2.line(canny,umax,lmax2,(0,0,255), 1)
@@ -285,18 +291,21 @@ def getFeatureVector(canny):
     cv2.circle(canny, refPoint2, 2, (255,0,128), 2)
     cv2.line(canny,midLine2[0],midLine2[1],(255,0,128), 1)
     #------------------------------------------------------------
-    return (canny,fv1,fv2)
+    return (shape,canny,fv1,fv2)
 
 
 if __name__=='__main__':
-    path = 'canny/img/195_.jpg'
+    path = 'canny/img/001_.jpg'
     canny = cv2.imread(path)  
-    fvimg, fv1, fv2 = getFeatureVector(canny)
+    shape, fvimg, fv1, fv2 = getFeatureVector(canny)
     print("Feature Vector 1: (angle between reference_Line_1 joining reference point and normal intersection point on the outer edge)")
     print(len(fv1),"->",fv1)
     print("Feature Vector 2: (angle between reference_line_2 joining reference point and normal intersection point on the outer edge)")
     print(len(fv2),"->",fv2)
-    
+    print("Category:",shape+1)
+    print("Free Lobe:",bool(4&shape))
+    print("Round:",bool(2&shape))
+    print("Narrow:",bool(1&shape))
     cv2.imshow('Canny', canny)
     cv2.imshow('Canny with Feature vector Drawings', fvimg)
     cv2.waitKey(0)
