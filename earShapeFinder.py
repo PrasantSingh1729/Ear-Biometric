@@ -1,6 +1,6 @@
-from Canny import *
-from earFeatureExtarction import *
 import math
+import numpy as np
+import cv2
 
 def middlePoint(points):
     '''
@@ -73,75 +73,17 @@ def findShape(img,outerEdge,umax,lmax,normalpoints,draw=1):
     narrow = isNarrow(normalpoints, edgeSize) 
     
     # ---------------------Drawings------------------------------------------
-    cv2.circle(canny, umax, 2, (0,0,255), 2)
-    cv2.circle(canny, lmax, 2, (0,0,255), 2)
-    cv2.line(canny, umax,lmax,(0,0,255), 1)
-    
     if(draw==1):
+        cv2.circle(canny, umax, 2, (0,0,255), 2)
+        cv2.circle(canny, lmax, 2, (0,0,255), 2)
+        cv2.line(canny, umax,lmax,(0,0,255), 1)
         cv2.imshow("Find Shape", canny)
     
     # print(free,round,narrow)
 
     return 4*free + 2*round + 1*narrow
-    
+   
 
 if __name__=="__main__":
-    # 195_ 020_ 014_ 033_ 035_t 038_ 065_
-    # round - 195_ 014_
-    # not round - 
-    # attached - 014_
-    # Free - 195_
-    img_path = "img/195_.jpg"
-    img = cv2.imread(img_path)
-    resizeimg = resizeImage(img,500)
-    gaussian, canny = getCanny(resizeimg,blur=9)
+    pass
     
-    canny = cv2.cvtColor(canny,cv2.COLOR_GRAY2BGR)
-    
-    # importing canny image as 
-    # img(in grayscale for processing) 
-    # and canny(in RGB for drawing colorfull lines on it)
-    grey = cv2.cvtColor(canny, cv2.COLOR_BGR2GRAY)
-    # Dilate the image to avoid error beacause of thin disjoints
-    kernel = np.ones((2, 2), np.uint8)
-    grey = cv2.dilate(grey, kernel, iterations=1)
-    canny = cv2.dilate(canny, kernel, iterations=1)
-
-
-    # Finding all connected line of white color in image
-    # lines variable will have list of pixles(coordinates [x,y]) of all the lines present in the img
-    lines = find_lines(grey)
-
-    # Out of all the lines we need only the outer edge for further calculation
-    # OuterEdge variable will consisit all the pixles of outer edge
-    outerEdge = sorted(lines,key=len,reverse=True)[0]
-
-    
-
-    # Find furthest point on outer edge
-    # umax - uppermost point
-    # lmax - lowermost point 
-    umax, lmax = furthestPoint(outerEdge)
-
-    # Generating 19 points in between umax and lmax
-    points = getPoints([umax, lmax],19)
-
-    # Finding the intersection of normal drawn with outer edge
-    normalpoints = createNormals(outerEdge, points)
-
-    # Finding the reference point for feature vector 1
-    # reference point is middle point
-    refPoint = points[int(len(points)/2)]
-
-    shape = findShape(canny,outerEdge,umax,lmax,normalpoints)
-
-    print("Category:",shape+1)
-    print("Free Lobe:",bool(4&shape))
-    print("Round:",bool(2&shape))
-    print("Narrow:",bool(1&shape))
-
-    cv2.imshow("original",resizeimg)
-    cv2.waitKey(0)
-    
-    
-    # img = np.zeros((canny.shape[0],canny.shape[1]), np.uint8)

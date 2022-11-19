@@ -14,21 +14,20 @@ if __name__=='__main__':
     canny = cv2.cvtColor(canny,cv2.COLOR_GRAY2BGR)
     
 
-    shape, fvimg, fv1, fv2 = getFeatureVector(canny)
+    ear = getEarInfo(canny,drawShape=1,drawFeature=1)
 
     print("Feature Vector 1: (angle between reference_Line_1 joining reference point and normal intersection point on the outer edge)")
-    print(len(fv1),"->",fv1)
+    print(len(ear['fv'][0]),"->",ear['fv'][0])
     print("Feature Vector 2: (angle between reference_line_2 joining reference point and normal intersection point on the outer edge)")
-    print(len(fv2),"->",fv2)
-    print("Category:",shape+1)
-    print("Free Lobe:",bool(4&shape))
-    print("Round:",bool(2&shape))
-    print("Narrow:",bool(1&shape))
+    print(len(ear['fv'][1]),"->",ear['fv'][1])
+    print("Category:",ear['shape']+1)
+    print("Free Lobe:",bool(4&ear['shape']))
+    print("Round:",bool(2&ear['shape']))
+    print("Narrow:",bool(1&ear['shape']))
 
     # Display---------------------------------------------
     cv2.imshow("Original", resizeimg)
     cv2.imshow("Gaussian Blur", gaussian)
     cv2.imshow('Canny', canny)
-    cv2.imshow('Canny with Feature vector Drawings', fvimg)
     cv2.waitKey(0)
 

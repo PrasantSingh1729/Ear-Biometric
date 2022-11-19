@@ -158,6 +158,8 @@ def createNormals(outerEdge, points):
         point2 = findIntersection(point1, m, outerEdge, sign)
         if not len(point2)==0:
             ans.append([point1,point2])
+    if(len(ans)!=len(points)):
+        raise Exception("Ambigous Ear. Problem in drawing normals.")
     return ans
 
 def middlePoint(points):
@@ -195,7 +197,7 @@ def extractFeature(ref,normalpoints,precision=2):
         fv.append(round(angle,precision))
     return fv
 
-def getFeatureVector(canny):
+def getEarInfo(canny,drawShape=1,drawFeature=1):
     '''
     This funtion accept image of canny of ear in BGR format and provide feature vector. \n
     return [image_with_drawing, featureVector1, featureVector2]
@@ -237,19 +239,9 @@ def getFeatureVector(canny):
     fv1 = extractFeature(refPoint,normalpoints)
 
     # shape of the ear
-    shape = findShape(canny,outerEdge,umax,lmax,normalpoints)
+    shape = findShape(canny,outerEdge,umax,lmax,normalpoints,draw=drawShape)
 
-    #------------Drawings for feature vector 1-------------------
-    cv2.circle(canny, umax, 2, (0,0,255), 2)
-    cv2.circle(canny, lmax, 2, (0,0,255), 2)
-    cv2.line(canny,umax,lmax,(0,0,255), 1)
-    for x in points:
-        cv2.circle(canny, x, 2, (0,255,0), 2)
-    for point in normalpoints:
-        cv2.line(canny,point[0],point[1],(255,0,0), 1)
 
-    cv2.circle(canny, refPoint, 2, (255,0,128), 2)
-    #------------------------------------------------------------
 
 
     # midline start and end point
@@ -277,35 +269,49 @@ def getFeatureVector(canny):
     # midline start and end point
     midLine2 = normalpoints2[int(len(normalpoints2)/2)]
 
-    
+       
 
-    #------------Drawings for feature vector 2-------------------
-    cv2.line(canny,midLine[0],midLine[1],(255,0,128), 1)
-    cv2.line(canny,umax,lmax2,(0,0,255), 1)
-    cv2.circle(canny, lmax2, 2, (0,255,255), 2)
-    for x in points2:
-        cv2.circle(canny, x, 2, (0,255,0), 2)
+    #------------Drawings---------------------------------------
+    if drawFeature:
+        cv2.circle(canny, umax, 2, (0,0,255), 2)
+        cv2.circle(canny, lmax, 2, (0,0,255), 2)
+        cv2.line(canny,umax,lmax,(0,0,255), 1)
+        for x in points:
+            cv2.circle(canny, x, 2, (0,255,0), 2)
+        for point in normalpoints:
+            cv2.line(canny,point[0],point[1],(255,0,0), 1)
 
-    for point in normalpoints2:
-        cv2.line(canny,point[0],point[1],(255,255,0), 1)
-    cv2.circle(canny, refPoint2, 2, (255,0,128), 2)
-    cv2.line(canny,midLine2[0],midLine2[1],(255,0,128), 1)
+        cv2.circle(canny, refPoint, 2, (255,0,128), 2)
+        cv2.line(canny,midLine[0],midLine[1],(255,0,128), 1)
+        cv2.line(canny,umax,lmax2,(0,0,255), 1)
+        cv2.circle(canny, lmax2, 2, (0,255,255), 2)
+        for x in points2:
+            cv2.circle(canny, x, 2, (0,255,0), 2)
+
+        for point in normalpoints2:
+            cv2.line(canny,point[0],point[1],(255,255,0), 1)
+        cv2.circle(canny, refPoint2, 2, (255,0,128), 2)
+        cv2.line(canny,midLine2[0],midLine2[1],(255,0,128), 1)
+        cv2.imshow('fvimage', canny)
     #------------------------------------------------------------
-    return (shape,canny,fv1,fv2)
+    return {"fv":[fv1,fv2],"shape":shape}
 
 
 if __name__=='__main__':
     path = 'canny/img/001_.jpg'
-    canny = cv2.imread(path)  
-    shape, fvimg, fv1, fv2 = getFeatureVector(canny)
+    canny = cv2.imread(path)
+    if canny is None:
+        raise Exception("Image not Found")
+    ear = getEarInfo(canny)
+    # print(ear["fv"])
     print("Feature Vector 1: (angle between reference_Line_1 joining reference point and normal intersection point on the outer edge)")
-    print(len(fv1),"->",fv1)
+    print(len(ear['fv'][0]),"->",ear['fv'][0])
     print("Feature Vector 2: (angle between reference_line_2 joining reference point and normal intersection point on the outer edge)")
-    print(len(fv2),"->",fv2)
-    print("Category:",shape+1)
-    print("Free Lobe:",bool(4&shape))
-    print("Round:",bool(2&shape))
-    print("Narrow:",bool(1&shape))
+    print(len(ear['fv'][1]),"->",ear['fv'][1])
+    print("Category:",ear['shape']+1)
+    print("Free Lobe:",bool(4&ear['shape']))
+    print("Round:",bool(2&ear['shape']))
+    print("Narrow:",bool(1&ear['shape']))
     cv2.imshow('Canny', canny)
-    cv2.imshow('Canny with Feature vector Drawings', fvimg)
+    
     cv2.waitKey(0)
