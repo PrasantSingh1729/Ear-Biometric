@@ -30,6 +30,7 @@ def isFree(canny, lmax,refPoint, outerEdgeImg, edgeSize, draw=1):
     for i in range(y1,y2):
         for j in range(x2):
             lobeMask[i][j] = 255
+    # cv2.imshow('lobe',lobeMask)
     if(draw==1):
         cv2.rectangle(canny,[0,int((refPoint[1]+lmax[1])/2)],lmax,(0,255,255),1)
 
@@ -43,7 +44,7 @@ def isRound(canny, umax,refPoint,outerEdgeImg,edgeSize, draw=1):
     radius = int(math.dist(refPoint,umax)/2)
     circleMask = np.zeros((canny.shape[0],canny.shape[1]), np.uint8)
     cv2.circle(circleMask,circleCenter,radius,(255),2)
-
+    # cv2.imshow('circle',circleMask)
     if(draw==1):
         cv2.circle(canny,circleCenter,radius,(255,0,255),1)
     

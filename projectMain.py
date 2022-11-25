@@ -18,9 +18,11 @@ if __name__=='__main__':
 
     print("Feature Vector 1: (angle between reference_Line_1 joining reference point and normal intersection point on the outer edge)")
     print(len(ear['fv'][0]),"->",ear['fv'][0])
+    print()
     print("Feature Vector 2: (angle between reference_line_2 joining reference point and normal intersection point on the outer edge)")
     print(len(ear['fv'][1]),"->",ear['fv'][1])
-    print("Category:",ear['shape']+1)
+    print()
+    print("Ear Category:",ear['shape']+1)
     print("Free Lobe:",bool(4&ear['shape']))
     print("Round:",bool(2&ear['shape']))
     print("Narrow:",bool(1&ear['shape']))

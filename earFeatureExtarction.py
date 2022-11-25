@@ -202,6 +202,8 @@ def getEarInfo(canny,drawShape=1,drawFeature=1):
     This funtion accept image of canny of ear in BGR format and provide feature vector. \n
     return [image_with_drawing, featureVector1, featureVector2]
     '''
+    canny1 = canny.copy()
+    canny2 = canny.copy()
     # importing canny image as 
     # img(in grayscale for processing) 
     # and canny(in RGB for drawing colorfull lines on it)
@@ -294,11 +296,42 @@ def getEarInfo(canny,drawShape=1,drawFeature=1):
         cv2.line(canny,midLine2[0],midLine2[1],(255,0,128), 1)
         cv2.imshow('fvimage', canny)
     #------------------------------------------------------------
+
+    #------------------------------------------------------------
+    if drawFeature:
+        cv2.circle(canny1, umax, 2, (0,0,255), 2)
+        cv2.circle(canny1, lmax, 2, (0,0,255), 2)
+        cv2.line(canny1,umax,lmax,(0,0,255), 1)
+        cv2.circle(canny1, refPoint, 2, (255,0,128), 2)
+        
+        for point in normalpoints:
+            cv2.line(canny1,refPoint,point[1],(255,0,0), 1)
+        cv2.line(canny1,midLine[0],midLine[1],(255,0,128), 1)
+        cv2.imshow("Feature 1", canny1)
+    #-----------------------------------------------------------
+
+
+    #------------------------------------------------------------
+    if drawFeature:
+        cv2.circle(canny2, umax, 2, (0,0,255), 2)
+        cv2.circle(canny2, lmax2, 2, (0,0,255), 2)
+        cv2.line(canny2,umax,lmax2,(0,0,255), 1)
+        cv2.circle(canny2, refPoint2, 2, (255,0,128), 2)
+        
+        for point in normalpoints2:
+            cv2.line(canny2,refPoint2,point[1],(255,0,0), 1)
+        
+        cv2.line(canny2,midLine2[0],midLine2[1],(255,0,128), 1)
+
+        cv2.imshow("Feature 2", canny2)
+    
+    #-----------------------------------------------------------
+
     return {"fv":[fv1,fv2],"shape":shape}
 
 
 if __name__=='__main__':
-    path = 'canny/img/001_.jpg'
+    path = 'canny/img/195_.jpg'
     canny = cv2.imread(path)
     if canny is None:
         raise Exception("Image not Found")
