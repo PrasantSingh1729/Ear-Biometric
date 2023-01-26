@@ -6,9 +6,9 @@ from earShapeFinder import *
 if __name__=='__main__':
     # 195_ 020_ 014_ 033_ 035_t 038_ 065_
     # 029_t 0 6 7
-    img_path = "img/195_.jpg"
+    img_path = "img/014_.jpg"
     img = cv2.imread(img_path)
-    resizeimg = resizeImage(img,500)
+    resizeimg = resizeImage(img,600)
     gaussian, canny = getCanny(resizeimg,blur=9)
     
     canny = cv2.cvtColor(canny,cv2.COLOR_GRAY2BGR)

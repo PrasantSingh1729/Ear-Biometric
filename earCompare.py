@@ -1,8 +1,15 @@
-def compareEar(ear1, ear2, alpha=0.5):
+from math import exp as e
+def compareEar(ear1, ear2, a=0.5):
+    '''
+        accuracy = 100 - Σ (e^a(fv₁[i]-fv₂[i]) - 1)
+        a : senstivity of comparison function
+    '''
     accuracy = 100
     for i in range(len(ear1[0])):
-        accuracy-= alpha * abs(ear1[0][i] - ear2[0][i])
+        accuracy-= (e(abs(ear1[0][i] - ear2[0][i])*a)-1)
     for i in range(len(ear1[1])):
-        accuracy-= alpha * abs(ear1[1][i] - ear2[1][i])
+        accuracy-= (e(abs(ear1[1][i] - ear2[1][i])*a)-1)
+    if(accuracy<0):
+        accuracy = 0.00
     return round(accuracy,2)
     

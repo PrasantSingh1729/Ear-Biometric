@@ -72,7 +72,7 @@ if __name__=="__main__":
     # Round: 
     # Oval:
     # Rectangular: 
-    img_path = "img/Dataset/014_.jpg"
+    img_path = "img/Dataset/195_.jpg"
     img = cv2.imread(img_path)
     resizeimg = resizeImage(img,500)
     gaussian, canny = getCanny(resizeimg,blur=9)

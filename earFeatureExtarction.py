@@ -345,6 +345,7 @@ if __name__=='__main__':
     print("Free Lobe:",bool(4&ear['shape']))
     print("Round:",bool(2&ear['shape']))
     print("Narrow:",bool(1&ear['shape']))
+    # cv2.imshow('Orignal Ear', )
     cv2.imshow('Canny', canny)
     
     cv2.waitKey(0)

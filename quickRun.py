@@ -6,7 +6,7 @@ from earShapeFinder import *
 from earCompare import *
 def getFvAndShape(img_path):
     img = cv2.imread(img_path)
-    resizeimg = resizeImage(img,400)
+    resizeimg = resizeImage(img,600)
     _, canny = getCanny(resizeimg,blur=9)
     canny = cv2.cvtColor(canny,cv2.COLOR_GRAY2BGR)
     ear1 = getEarInfo(canny,drawShape=0,drawFeature=0)
@@ -17,11 +17,11 @@ def compareImg(img1,img2):
     ear2 = getFvAndShape(img2)
     print(ear1)
     print(ear2)
-    return compareEar(ear1['fv'],ear2['fv'],alpha=0.75)
+    return compareEar(ear1['fv'],ear2['fv'],a=0.2)
 
 if __name__=='__main__':
     start = time.time()
-    ans = compareImg("img/compare/1.jpg","img/compare/2.jpg")
+    ans = compareImg("img/compare/1.jpg","img/compare/1t.jpg")
     print(ans,"% matched")
     end = time.time()
     print("Time took:",end-start)
