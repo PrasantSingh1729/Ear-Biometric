@@ -17,11 +17,11 @@ def compareImg(img1,img2):
     ear2 = getFvAndShape(img2)
     print(ear1)
     print(ear2)
-    return compareEar(ear1['fv'],ear2['fv'],a=0.2)
+    return compareEar(ear1['fv'],ear2['fv'],a=0.1)
 
 if __name__=='__main__':
     start = time.time()
-    ans = compareImg("img/compare/1.jpg","img/compare/1t.jpg")
+    ans = compareImg("img/compare/1.jpg","img/compare/1.jpg")
     print(ans,"% matched")
     end = time.time()
     print("Time took:",end-start)
