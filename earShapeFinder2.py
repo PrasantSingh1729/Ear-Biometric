@@ -2,7 +2,7 @@ import math
 import numpy as np
 import cv2
 from earFeatureExtarction import *
-from Canny import *
+from cannyAndGauss import *
 
 def getSlope(point1, point2):
     '''

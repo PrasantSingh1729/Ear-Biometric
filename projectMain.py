@@ -1,12 +1,12 @@
 import cv2
-from Canny import *
+from cannyAndGauss import *
 from earFeatureExtarction import *
 from earShapeFinder import *
 
 if __name__=='__main__':
     # 195_ 020_ 014_ 033_ 035_t 038_ 065_
     # 029_t 0 6 7
-    img_path = "img/014_.jpg"
+    img_path = "img/register/jawale/1.jpeg"
     img = cv2.imread(img_path)
     resizeimg = resizeImage(img,600)
     gaussian, canny = getCanny(resizeimg,blur=9)

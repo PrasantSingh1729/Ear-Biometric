@@ -10,10 +10,10 @@ def compareEar(ear1, ear2, a=0.5):
         diff+= abs(ear1[0][i] - ear2[0][i])
     for i in range(len(ear1[1])):
         diff+= abs(ear1[1][i] - ear2[1][i])
-    accuracy = 100 - (e(diff*a) - 1)
-    if accuracy<0:
-        accuracy=0.00
-    return round(accuracy,2)
+    matchPercentage = 100 - (e(diff*a) - 1)
+    if matchPercentage<0:
+        matchPercentage=0.00
+    return round(matchPercentage,2)
 
 def compareEar2(ear1, ear2, a=0.5):
     '''
